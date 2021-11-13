@@ -80,7 +80,7 @@ func main() {
 				cleanup <- true
 			}()
 			<-cleanup
-			eng.Close()
+			mongoClient.Close()
 			fmt.Println("safe exit")
 			cleanupDone <- true
 		}

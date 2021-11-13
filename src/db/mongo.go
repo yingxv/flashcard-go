@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/yingxv/flashcard-go/src/models"
+	"github.com/yingxv/flashcard-go/src/model"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -61,7 +61,7 @@ func (d *MongoClient) Open(mg, mdb string, initdb bool) error {
 		defer session.Disconnect(context.Background())
 
 		// 记录表
-		t := session.Database(mdb).Collection(models.TRecord)
+		t := session.Database(mdb).Collection(model.TRecord)
 		indexView := t.Indexes()
 		_, err := indexView.CreateMany(context.Background(), []mongo.IndexModel{
 			{Keys: bsonx.Doc{bsonx.Elem{Key: "createAt", Value: bsonx.Int32(-1)}}},
