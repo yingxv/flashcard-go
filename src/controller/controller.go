@@ -1,0 +1,28 @@
+package controller
+
+import (
+	"github.com/go-playground/validator/v10"
+	"github.com/yingxv/flashcard-go/src/db"
+	"github.com/yingxv/flashcard-go/src/middleware"
+)
+
+// Controller 控制器
+type Controller struct {
+	validate *validator.Validate
+	auth     *middleware.Auth
+	mongo    *db.MongoClient
+}
+
+// NewController 工厂方法
+func NewController(
+	validate *validator.Validate,
+	auth *middleware.Auth,
+	mongo *db.MongoClient,
+) *Controller {
+
+	return &Controller{
+		validate,
+		auth,
+		mongo,
+	}
+}
