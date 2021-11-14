@@ -40,8 +40,9 @@ func main() {
 	mongoClient := db.NewMongoClient()
 	err := mongoClient.Open(*mongo, *mdb, *dbinit)
 	validate := util.NewValidator()
+	trans := util.NewValidatorTranslator(validate)
 
-	controller := controller.NewController(validate, auth, mongoClient)
+	controller := controller.NewController(validate, trans, auth, mongoClient)
 	if err != nil {
 		panic(err)
 	}

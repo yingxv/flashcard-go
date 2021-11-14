@@ -11,22 +11,25 @@ import (
 
 // NewValidator 工厂方法
 func NewValidator() *validator.Validate {
+	return validator.New()
+}
+
+// NewValidatorTranslator 工厂方法
+func NewValidatorTranslator(v *validator.Validate) *ut.Translator {
 	uni := ut.New(zh.New())
 	trans, _ := uni.GetTranslator("zh")
 
-	validate := validator.New()
 	//注册一个函数，获取struct tag里自定义的label作为字段名
-	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := fld.Tag.Get("label")
-		return name
+	v.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		return fld.Tag.Get("label")
 	})
 
 	//注册翻译器
-	err := zh_translations.RegisterDefaultTranslations(validate, trans)
+	err := zh_translations.RegisterDefaultTranslations(v, trans)
 	if err != nil {
 		panic(err)
 	}
 
-	return validate
+	return &trans
 
 }

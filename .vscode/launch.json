@@ -12,10 +12,10 @@
       "program": "${workspaceFolder}/main.go",
       "args": [
         "-i=${env:DBINIT}",
-        "-l=${env:ADDR}",
+        "-l=:80",
         "-m=${env:MONGO}",
         "-db=${env:DB}",
-        "-uc=${env:UC}",
+        "-uc=https://api.furan.xyz/user-center",
       ],
       "debugAdapter":"legacy"
     }
