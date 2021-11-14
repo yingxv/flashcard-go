@@ -12,10 +12,7 @@ import (
 // NewValidator 工厂方法
 func NewValidator() *validator.Validate {
 	uni := ut.New(zh.New())
-	trans, found := uni.GetTranslator("zh")
-	if !found {
-		panic("not found translator")
-	}
+	trans, _ := uni.GetTranslator("zh")
 
 	validate := validator.New()
 	//注册一个函数，获取struct tag里自定义的label作为字段名
