@@ -36,5 +36,4 @@ jobs:
             cd todo-list
             git checkout master
             git pull
-            git submodule update --init
             sh boot.sh
