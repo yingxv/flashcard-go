@@ -18,6 +18,6 @@ type Record struct {
 	CooldownAt  *time.Time          `json:"cooldownAt,omitempty" bson:"cooldownAt,omitempty" `                                            // 冷却时间
 	Source      string              `json:"source,omitempty" bson:"source,omitempty" validate:"required_without=ID" label:"原文"`           // 原文
 	Translation string              `json:"translation,omitempty" bson:"translation,omitempty" validate:"required_without=ID" label:"译文"` // 译文
-	InReview    bool                `json:"inReview,omitempty" bson:"inReview,omitempty" `                                                // 是否在复习中
-	Exp         int64               `json:"exp,omitempty" bson:"exp,omitempty" `                                                          // 复习熟练度
+	InReview    bool                `json:"inReview,omitempty" bson:"inReview" `                                                          // 是否在复习中
+	Exp         int64               `json:"exp,omitempty" bson:"exp" `                                                                    // 复习熟练度
 }

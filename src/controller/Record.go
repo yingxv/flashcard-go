@@ -79,9 +79,9 @@ func (c *Controller) RecordRemove(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	ret := c.mongo.GetColl(model.TRecord).FindOneAndDelete(context.Background(), &model.Record{
-		ID:  &id,
-		UID: &uid,
+	ret := c.mongo.GetColl(model.TRecord).FindOneAndDelete(context.Background(), bson.M{
+		"_id": &id,
+		"uid": &uid,
 	})
 
 	if ret.Err() != nil {
@@ -107,6 +107,11 @@ func (c *Controller) RecordUpdate(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	if len(body) == 0 {
+		util.RetFail(w, errors.New("not has body"))
+		return
+	}
+
 	record := new(model.Record)
 
 	err = json.Unmarshal(body, &record)
@@ -121,9 +126,13 @@ func (c *Controller) RecordUpdate(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	ret := c.mongo.GetColl(model.TRecord).FindOneAndUpdate(context.Background(), &model.Record{
-		ID:  record.ID,
-		UID: &uid,
+	now := time.Now()
+	record.CooldownAt = &now
+	record.UpdateAt = &now
+
+	ret := c.mongo.GetColl(model.TRecord).FindOneAndUpdate(context.Background(), bson.M{
+		"_id": record.ID,
+		"uid": &uid,
 	}, bson.M{
 		"$set": record,
 	})
@@ -166,8 +175,11 @@ func (c *Controller) RecordList(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	filter := bson.M{
-		"inReview": convertor.InReview,
-		"uid":      uid,
+		"uid": uid,
+	}
+
+	if convertor.InReview != nil {
+		filter["inReview"] = convertor.InReview
 	}
 
 	if convertor.Type != nil {
@@ -239,6 +251,11 @@ func (c *Controller) RecordReview(w http.ResponseWriter, r *http.Request, ps htt
 
 	if err != nil {
 		util.RetFail(w, err)
+		return
+	}
+
+	if len(body) == 0 {
+		util.RetFail(w, errors.New("not has body"))
 		return
 	}
 
@@ -318,9 +335,11 @@ func (c *Controller) RecordRandomReview(w http.ResponseWriter, r *http.Request, 
 		Num *int `json:"num,omitempty"`
 	}{}
 
-	if json.Unmarshal(body, &converter) != nil {
-		util.RetFail(w, err)
-		return
+	if len(body) != 0 {
+		if err := json.Unmarshal(body, &converter); err != nil {
+			util.RetFail(w, err)
+			return
+		}
 	}
 
 	t := c.mongo.GetColl(model.TRecord)
@@ -332,7 +351,7 @@ func (c *Controller) RecordRandomReview(w http.ResponseWriter, r *http.Request, 
 
 	cursor, err := t.Aggregate(context.Background(), []bson.M{
 		{
-			"match": bson.M{
+			"$match": bson.M{
 				"uid":        uid,
 				"inReview":   false,
 				"cooldownAt": bson.M{"$lte": time.Now()},
@@ -394,10 +413,17 @@ func (c *Controller) RecordSetReviewResult(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if len(body) == 0 {
+		util.RetFail(w, errors.New("not has body"))
+		return
+	}
+
 	var record struct {
 		ID         *primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty" validate:"required"`                // id
 		CooldownAt *time.Time          `json:"cooldownAt,omitempty" bson:"cooldownAt,omitempty" validate:"required"` // 冷却时间
-		Exp        int64               `json:"exp,omitempty" bson:"exp,omitempty" validate:"required"`               // 复习熟练度
+		Exp        int64               `json:"exp,omitempty" bson:"exp,omitempty" validate:"gte=0"`                  // 复习熟练度
+		InReview   bool                `json:"inReview,omitempty" bson:"inReview" `                                  // 是否在复习中
+		ReviewAt   *time.Time          `json:"reviewAt,omitempty" bson:"reviewAt,omitempty" `                        // 复习时间
 	}
 
 	if err := json.Unmarshal(body, &record); err != nil {
@@ -409,7 +435,8 @@ func (c *Controller) RecordSetReviewResult(w http.ResponseWriter, r *http.Reques
 		util.RetFailWithTrans(w, err, c.trans)
 		return
 	}
-
+	now := time.Now()
+	record.ReviewAt = &now
 	ret := c.mongo.GetColl(model.TRecord).FindOneAndUpdate(context.Background(), bson.M{
 		"_id": record.ID,
 		"uid": uid,
