@@ -17,7 +17,7 @@ func (app *App) IsLogin(next http.Handler) http.Handler {
 		if err != nil {
 			w.Header().Set("WWW-Authenticate", "Bearer realm=Restricted")
 			w.WriteHeader(http.StatusUnauthorized)
-			util.RetFail(w, errors.New("invalidate request"))
+			util.RetFail(w, err)
 			return
 		}
 
