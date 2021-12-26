@@ -12,8 +12,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/julienschmidt/httprouter"
-	"github.com/yingxv/flashcard-go/src/controller"
+	"github.com/yingxv/flashcard-go/src/app"
 	"github.com/yingxv/flashcard-go/src/db"
 	"github.com/yingxv/flashcard-go/src/middleware"
 	"github.com/yingxv/flashcard-go/src/util"
@@ -25,40 +26,50 @@ func init() {
 
 func main() {
 	var (
-		addr   = flag.String("l", ":8041", "绑定Host地址")
+		addr   = flag.String("l", ":8030", "绑定Host地址")
 		dbinit = flag.Bool("i", false, "init database flag")
 		mongo  = flag.String("m", "mongodb://localhost:27017", "mongod addr flag")
 		mdb    = flag.String("db", "to-do-list", "database name")
-		ucHost = flag.String("uc", "http://user-center-go-dev", "user center host")
+		ucHost = flag.String("uc", "http://locahost:8020", "user center host")
+		r      = flag.String("r", "localhost:6379", "rdb addr")
 	)
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
-	auth := middleware.NewAuth(ucHost)
 	mongoClient := db.NewMongoClient()
 	err := mongoClient.Open(*mongo, *mdb, *dbinit)
+	if err != nil {
+		panic(err)
+	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     *r,
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
 	validate := util.NewValidator()
 	trans := util.NewValidatorTranslator(validate)
 
-	controller := controller.NewController(validate, trans, auth, mongoClient)
+	app := app.New(validate, trans, ucHost, mongoClient, rdb)
 	if err != nil {
 		panic(err)
 	}
 
 	router := httprouter.New()
 	//task ctrl
-	router.POST("/record/create", controller.RecordCreate)
-	router.DELETE("/record/remove/:id", controller.RecordRemove)
-	router.PATCH("/record/update", controller.RecordUpdate)
-	router.GET("/record/list", controller.RecordList)
-	router.PATCH("/record/review", controller.RecordReview)
-	router.GET("/record/review-all", controller.RecordReviewAll)
-	router.PATCH("/record/random-review", controller.RecordRandomReview)
-	router.PATCH("/record/set-review-result", controller.RecordSetReviewResult)
+	router.POST("/record/create", app.RecordCreate)
+	router.DELETE("/record/remove/:id", app.RecordRemove)
+	router.PATCH("/record/update", app.RecordUpdate)
+	router.GET("/record/list", app.RecordList)
+	router.PATCH("/record/review", app.RecordReview)
+	router.GET("/record/review-all", app.RecordReviewAll)
+	router.PATCH("/record/random-review", app.RecordRandomReview)
+	router.PATCH("/record/set-review-result", app.RecordSetReviewResult)
 
-	srv := &http.Server{Handler: auth.IsLogin(middleware.CORS(router)), ErrorLog: nil}
+	srv := &http.Server{Handler: app.IsLogin(middleware.CORS(router)), ErrorLog: nil}
 	srv.Addr = *addr
 
 	go func() {

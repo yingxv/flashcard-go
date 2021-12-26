@@ -15,7 +15,8 @@
         "-l=:80",
         "-m=${env:MONGO}",
         "-db=${env:DB}",
-        "-uc=https://api.furan.xyz/user-center",
+        "-uc=http://locahost:8020",
+        "-r=${env:REDIS}",
       ],
       "debugAdapter":"legacy"
     }

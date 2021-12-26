@@ -1,4 +1,4 @@
-package controller
+package app
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (c *Controller) RecordCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordCreate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -66,7 +66,7 @@ func (c *Controller) RecordCreate(w http.ResponseWriter, r *http.Request, ps htt
 
 }
 
-func (c *Controller) RecordRemove(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordRemove(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -92,7 +92,7 @@ func (c *Controller) RecordRemove(w http.ResponseWriter, r *http.Request, ps htt
 	util.RetOk(w, "OK")
 }
 
-func (c *Controller) RecordUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -144,7 +144,7 @@ func (c *Controller) RecordUpdate(w http.ResponseWriter, r *http.Request, ps htt
 
 	util.RetOk(w, "OK")
 }
-func (c *Controller) RecordList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordList(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -239,7 +239,7 @@ func (c *Controller) RecordList(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	util.RetOkWithTotal(w, res, count)
 }
-func (c *Controller) RecordReview(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordReview(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -287,7 +287,7 @@ func (c *Controller) RecordReview(w http.ResponseWriter, r *http.Request, ps htt
 	util.RetOk(w, res)
 
 }
-func (c *Controller) RecordReviewAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordReviewAll(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -316,7 +316,7 @@ func (c *Controller) RecordReviewAll(w http.ResponseWriter, r *http.Request, ps 
 
 }
 
-func (c *Controller) RecordRandomReview(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordRandomReview(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)
@@ -398,7 +398,7 @@ func (c *Controller) RecordRandomReview(w http.ResponseWriter, r *http.Request, 
 	util.RetOk(w, res)
 
 }
-func (c *Controller) RecordSetReviewResult(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (c *App) RecordSetReviewResult(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	uid, err := primitive.ObjectIDFromHex(r.Header.Get("uid"))
 	if err != nil {
 		util.RetFail(w, err)

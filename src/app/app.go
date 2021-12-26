@@ -1,32 +1,35 @@
-package controller
+package app
 
 import (
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	"github.com/yingxv/flashcard-go/src/db"
-	"github.com/yingxv/flashcard-go/src/middleware"
 )
 
-// Controller 控制器
-type Controller struct {
+// App
+type App struct {
 	validate *validator.Validate
 	trans    *ut.Translator
-	auth     *middleware.Auth
+	uc       *string
 	mongo    *db.MongoClient
+	rdb      *redis.Client
 }
 
-// NewController 工厂方法
-func NewController(
+// New 工厂方法
+func New(
 	validate *validator.Validate,
 	trans *ut.Translator,
-	auth *middleware.Auth,
+	uc *string,
 	mongo *db.MongoClient,
-) *Controller {
+	rdb *redis.Client,
+) *App {
 
-	return &Controller{
+	return &App{
 		validate,
 		trans,
-		auth,
+		uc,
 		mongo,
+		rdb,
 	}
 }
