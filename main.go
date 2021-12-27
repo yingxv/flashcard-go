@@ -93,6 +93,7 @@ func main() {
 			}()
 			<-cleanup
 			mongoClient.Close()
+			rdb.Close()
 			fmt.Println("safe exit")
 			cleanupDone <- true
 		}
